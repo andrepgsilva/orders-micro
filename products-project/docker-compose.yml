@@ -1,0 +1,37 @@
+services:
+  products:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/home/node/app
+    ports:
+      - 3000:3000
+    networks:
+      - microservices-network
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: productsapi
+    volumes:
+      - ./.docker/mongo/mongodb:/data/db
+      - ./.docker/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+    networks:
+      - microservices-network
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    name: microservices-network
+    driver: bridge
